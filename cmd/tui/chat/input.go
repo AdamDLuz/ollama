@@ -64,6 +64,24 @@ var chatSlashCommands = []chatSlashCommand{
 	{name: "/save", usage: "/save <filename>", description: "save request JSON; saved as <filename>.json"},
 }
 
+// BuiltinSlashCommandNames returns the names reserved by built-in slash
+// commands, including aliases.
+func BuiltinSlashCommandNames() []string {
+	names := make(map[string]struct{})
+	for _, command := range chatSlashCommands {
+		names[strings.TrimPrefix(command.name, "/")] = struct{}{}
+		for _, alias := range command.aliases {
+			names[strings.TrimPrefix(alias, "/")] = struct{}{}
+		}
+	}
+	reserved := make([]string, 0, len(names))
+	for name := range names {
+		reserved = append(reserved, name)
+	}
+	sort.Strings(reserved)
+	return reserved
+}
+
 func (m *chatModel) handleSubmit() (tea.Model, tea.Cmd) {
 	m.syncInputPlaceholders()
 	input := strings.TrimSpace(string(m.input))
